@@ -10,6 +10,7 @@ export const DELETE_LIVE_SHOW = 'DELETE_LIVE_SHOW';
 export const ADD_LIVE_SHOW = 'ADD_LIVE_SHOW';
 export const UPDATE_LIVE_SHOW = 'UPDATE_LIVE_SHOW';
 export const SET_DESTINATIONS = 'SET_DESTINATIONS';
+export const SET_LIVE_SHOWS = 'SET_LIVE_SHOWS';
 
 export const fetchDestinations = () => {
   return async dispatch => {
@@ -46,7 +47,7 @@ export const fetchDestinations = () => {
       throw e;
     }
   };
-}
+};
 
 export const toggleFavorite = (id) => {
     return { type: TOGGLE_FAVORITE, destinationId: id };
@@ -170,48 +171,158 @@ export const updateDestination = (destinationId, did, categoryIds, placeName, lo
     };
 };
 
-export const deleteLiveShow = liveShowId => {
-    return { type: DELETE_LIVE_SHOW, lid: liveShowId };
-};
+export const fetchLiveShows = () => {
+    return async dispatch => {
+      try {
+        const response = await fetch('https://event-management-system-25cfe-default-rtdb.firebaseio.com/liveShows.json');
+        if (!response.ok) {
+          throw new Error('Something went wrong!');
+        }
+        const resData = await response.json();
+        const loadedLiveShows = [];
 
-export const addLiveShow = (liveShowId, categoryIds, eventName, performers, genreOfEvent, location, contactOfManager, contactOfHost, description, duration, eventForImage, pricingForEntry, isEighteenPlus) => {
-    return {
-      type: ADD_LIVE_SHOW,
-      liveShowData: {
-        liveShowId,
-        categoryIds,
-        eventName,
-        performers,
-        genreOfEvent,
-        location,
-        contactOfManager,
-        contactOfHost,
-        description,
-        duration,
-        eventForImage,
-        pricingForEntry,
-        isEighteenPlus
+        for (const key in resData) {
+          loadedLiveShows.push(
+            new LiveShowDetails(
+              resData[key].liveShowId,
+              key,
+              resData[key].ownerId,
+              resData[key].categoryIds,
+              resData[key].eventName,
+              resData[key].performers,
+              resData[key].genreOfEvent,
+              resData[key].location,
+              resData[key].contactOfManager,
+              resData[key].contactOfHost,
+              resData[key].description,
+              resData[key].duration,
+              resData[key].eventForImage,
+              resData[key].pricingForEntry,
+              resData[key].isEighteenPlus
+            )
+          );
+        }
+        dispatch({ type: SET_LIVE_SHOWS, liveShows: loadedLiveShows })
+      } catch (e) {
+        throw e;
       }
     };
 };
 
-export const updateLiveShow = (liveShowId, categoryIds, eventName, performers, genreOfEvent, location, contactOfManager, contactOfHost, description, duration, eventForImage, pricingForEntry, isEighteenPlus) => {
-    return {
-      type: UPDATE_LIVE_SHOW,
-      liveId: liveShowId,
-      liveShowData: {
-        categoryIds,
-        eventName,
-        performers,
-        genreOfEvent,
-        location,
-        contactOfManager,
-        contactOfHost,
-        description,
-        duration,
-        eventForImage,
-        pricingForEntry,
-        isEighteenPlus
-      }
+export const deleteLiveShow = liveShowId => {
+    return async (dispatch, getState) => {
+      const token = getState().auth.token;
+      await fetch(
+        `https://event-management-system-25cfe-default-rtdb.firebaseio.com/liveShows/${liveShowId}.json?auth=${token}`,
+        {
+          method: 'DELETE'
+        }
+      );
+      dispatch({
+        type: DELETE_LIVE_SHOW,
+        lid: liveShowId
+      });
+    };
+};
+
+export const addLiveShow = (liveShowId, categoryIds, eventName, performers, genreOfEvent, location, contactOfManager, contactOfHost, description, duration, eventForImage, pricingForEntry, isEighteenPlus) => {
+    return async (dispatch, getState) => {
+      const token = getState().auth.token;
+      const userId = getState().auth.userId;
+      const response = await fetch(`https://event-management-system-25cfe-default-rtdb.firebaseio.com/liveShows.json?auth=${token}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          liveShowId,
+          ownerId: userId,
+          categoryIds,
+          eventName,
+          performers,
+          genreOfEvent,
+          location,
+          contactOfManager,
+          contactOfHost,
+          description,
+          duration,
+          eventForImage,
+          pricingForEntry,
+          isEighteenPlus
+        })
+      });
+
+      const resData = await response.json();
+
+      dispatch({
+        type: ADD_LIVE_SHOW,
+        liveShowData: {
+          liveShowId,
+          firebaseId: resData.name,
+          ownerId: userId,
+          categoryIds,
+          eventName,
+          performers,
+          genreOfEvent,
+          location,
+          contactOfManager,
+          contactOfHost,
+          description,
+          duration,
+          eventForImage,
+          pricingForEntry,
+          isEighteenPlus
+        }
+      });
+    };
+};
+
+export const updateLiveShow = (liveShowId, lid, categoryIds, eventName, performers, genreOfEvent, location, contactOfManager, contactOfHost, description, duration, eventForImage, pricingForEntry, isEighteenPlus) => {
+    return async (dispatch, getState) => {
+      const token = getState().auth.token;
+      const userId = getState().auth.userId;
+      await fetch(`https://event-management-system-25cfe-default-rtdb.firebaseio.com/liveShows/${lid}.json?auth=${token}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          liveShowId,
+          ownerId: userId,
+          categoryIds,
+          eventName,
+          performers,
+          genreOfEvent,
+          location,
+          contactOfManager,
+          contactOfHost,
+          description,
+          duration,
+          eventForImage,
+          pricingForEntry,
+          isEighteenPlus
+        })
+      });
+
+      dispatch({
+        type: UPDATE_LIVE_SHOW,
+        liveId: lid,
+        liveShowData: {
+          liveShowId,
+          ownerId: userId,
+          categoryIds,
+          eventName,
+          performers,
+          genreOfEvent,
+          location,
+          contactOfManager,
+          contactOfHost,
+          description,
+          duration,
+          eventForImage,
+          pricingForEntry,
+          isEighteenPlus
+        }
+      });
     };
 };

@@ -1,6 +1,8 @@
 class LiveShowDetails {
   constructor(
     id,
+    firebaseId,
+    ownerId,
     categoryIds,
     eventName,
     performers,
@@ -15,6 +17,8 @@ class LiveShowDetails {
     isEighteenPlus
   ) {
       this.id = id;
+      this.firebaseId = firebaseId;
+      this.ownerId = ownerId;
       this.categoryIds = categoryIds;
       this.eventName = eventName;
       this.performers = performers;

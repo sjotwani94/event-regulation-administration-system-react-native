@@ -1,5 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, Image, ImageBackground, View, TextInput, TouchableOpacity, KeyboardAvoidingView, Alert } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import {
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  Text,
+  Image,
+  ImageBackground,
+  View,
+  TextInput,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Alert
+} from 'react-native';
 import { useDispatch } from 'react-redux';
 import * as authActions from '../store/actions/auth';
 import Colors from '../constants/Colors';
@@ -17,18 +29,46 @@ const AuthScreen = props => {
     const [passwordIsValid, setPasswordIsValid] = useState(false);
     const [passwordTouched, setPasswordTouched] = useState(false);
 
+    const [userName, setUserName] = useState('');
+    const [userNameIsValid, setUserNameIsValid] = useState(false);
+    const [userNameTouched, setUserNameTouched] = useState(false);
+
+    const [phoneNumber, setPhoneNumber] = useState('');
+    const [phoneNumberIsValid, setPhoneNumberIsValid] = useState(false);
+    const [phoneNumberTouched, setPhoneNumberTouched] = useState(false);
+
     const dispatch = useDispatch();
+
+    const loadAuthUsers = useCallback(async () => {
+      setErrorFound(null);
+      try {
+        await dispatch(authActions.fetchAuthUsers());
+      } catch (e) {
+        setErrorFound(e.message);
+      }
+    }, [dispatch, setErrorFound]);
+
+    useEffect(() => {
+      const willFocusSub = props.navigation.addListener('willFocus', loadAuthUsers);
+      return () => {
+        willFocusSub.remove();
+      };
+    }, [loadAuthUsers]);
+
+    useEffect(() => {
+      loadAuthUsers();
+    }, [dispatch, loadAuthUsers]);
 
     useEffect(() => {
       if (errorFound) {
         Alert.alert('An Error Occurred!', errorFound, [{ text: 'Okay'}]);
       }
-    }, [errorFound])
+    }, [errorFound]);
 
     const signUpHandler = async () => {
         let action;
         if (isSignUp) {
-          action = authActions.signup(email, password);
+          action = authActions.signup(email, password, userName, phoneNumber);
         } else {
           action = authActions.login(email, password);
         }
@@ -62,6 +102,26 @@ const AuthScreen = props => {
       setEmail(text);
     };
 
+    const userNameChangeHandler = text => {
+      let patternName = /^[a-zA-Z ]{5,30}$/;
+      if (text.trim().length === 0 || !patternName.test(text)) {
+        setUserNameIsValid(false);
+      } else {
+        setUserNameIsValid(true);
+      }
+      setUserName(text);
+    };
+
+    const phoneNumberChangeHandler = text => {
+      let patternName = /^[0-9]{10,15}$/;
+      if (text.trim().length === 0 || !patternName.test(text)) {
+        setPhoneNumberIsValid(false);
+      } else {
+        setPhoneNumberIsValid(true);
+      }
+      setPhoneNumber(text);
+    };
+
     const passwordChangeHandler = text => {
       let patternName = /^[a-zA-Z0-9!@#$%^&*]{8,20}$/;
       if (text.trim().length === 0 || !patternName.test(text)) {
@@ -71,6 +131,30 @@ const AuthScreen = props => {
       }
       setPassword(text);
     };
+
+    const InvalidUserName = () => {
+      if (!userNameIsValid && userNameTouched) {
+        return (
+          <View style={styles.errorMessage}>
+            <Text style={{color: '#FFFFFF', fontFamily: 'open-sans'}}>Please Enter A Valid User Name!</Text>
+          </View>
+        );
+      } else {
+        return null;
+      }
+    };
+
+    const InvalidPhoneNum = () => {
+      if (!phoneNumberIsValid && phoneNumberTouched) {
+        return (
+          <View style={styles.errorMessage}>
+            <Text style={{color: '#FFFFFF', fontFamily: 'open-sans'}}>Please Enter A Valid Phone Number!</Text>
+          </View>
+        );
+      } else {
+        return null;
+      }
+    }
     return (
       <View style={styles.container}>
         <ImageBackground
@@ -97,7 +181,7 @@ const AuthScreen = props => {
         <View style={styles.inputView}>
           <TextInput
             style={styles.inputText}
-            placeholder="Email..."
+            placeholder="Email"
             placeholderTextColor="#003f5c"
             onChangeText={emailChangeHandler}
             onEndEditing={() => {
@@ -112,11 +196,40 @@ const AuthScreen = props => {
               <Text style={{color: '#FFFFFF', fontFamily: 'open-sans'}}>Please Enter A Valid Email Address!</Text>
             </View>
           }
+          {
+            isSignUp &&
+            <View style={{width: '100%', alignItems: 'center'}}>
+              <View style={styles.inputView}>
+                  <TextInput
+                    style={styles.inputText}
+                    placeholder="User Name"
+                    placeholderTextColor="#003f5c"
+                    onChangeText={userNameChangeHandler}
+                    onEndEditing={() => {
+                      setUserNameTouched(true);
+                    }}
+                  />
+              </View>
+              <InvalidUserName />
+              <View style={styles.inputView}>
+                  <TextInput
+                    style={styles.inputText}
+                    placeholder="Mobile Number"
+                    placeholderTextColor="#003f5c"
+                    onChangeText={phoneNumberChangeHandler}
+                    onEndEditing={() => {
+                      setPhoneNumberTouched(true);
+                    }}
+                  />
+              </View>
+              <InvalidPhoneNum />
+            </View>
+          }
         <View style={styles.inputView}>
           <TextInput
             secureTextEntry
             style={styles.inputText}
-            placeholder="Password..."
+            placeholder="Password"
             placeholderTextColor="#003f5c"
             onChangeText={passwordChangeHandler}
             onEndEditing={() => {

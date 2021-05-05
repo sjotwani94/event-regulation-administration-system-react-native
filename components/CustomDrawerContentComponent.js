@@ -4,13 +4,19 @@ import { Avatar, Divider } from 'react-native-elements';
 import { DrawerItems } from 'react-navigation-drawer';
 import { SafeAreaView } from 'react-navigation';
 import { SimpleLineIcons, FontAwesome } from '@expo/vector-icons';
-import { useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import Colors from '../constants/Colors';
 import * as authActions from '../store/actions/auth';
 
+let nameOfUser;
+let emailOfUser;
 const CustomDrawerContentComponent = props => {
   const ripple = TouchableNativeFeedback.Ripple('#adacac', false);
   const dispatch = useDispatch();
+  const currentUserId = useSelector(state => state.auth.userId);
+  const allAuthUsers = useSelector(state => state.auth.authUsersData.find(dest => dest.userId === currentUserId));
+  nameOfUser = allAuthUsers ? allAuthUsers.nameOfUser : 'nothing';
+  emailOfUser = allAuthUsers ? allAuthUsers.emailOfUser : 'nothing';
 
   return (
     <View style={{ flex: 1 }}>
@@ -23,8 +29,8 @@ const CustomDrawerContentComponent = props => {
           <View style={[ styles.containHeader, { backgroundColor: Colors.primaryColor }]}>
             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
               <Avatar size='large' rounded icon={{ name: 'user-circle-o', type: 'font-awesome', size: 80 }} />
-              <Text style={{ color: '#f9f9f9', marginTop: '3%', fontFamily: 'open-sans-bold' }}>Hi Siddharth</Text>
-              <Text style={{ color: '#f9f9f9', fontFamily: 'open-sans' }}>siddharthkj345@gmail.com</Text>
+              <Text style={{ color: '#f9f9f9', marginTop: '3%', fontFamily: 'open-sans-bold' }}>Hi {nameOfUser}</Text>
+              <Text style={{ color: '#f9f9f9', fontFamily: 'open-sans' }}>{emailOfUser}</Text>
             </View>
           </View>
 

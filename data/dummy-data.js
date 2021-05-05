@@ -219,6 +219,8 @@ export const DESTINATIONS = [
 export const LIVE_SHOWS_CONCERTS = [
   new LiveShowDetails(
     'ls1',
+    'n9nisisi777dsaaa',
+    'nullified',
     'c3',
     'EDM Night with Lost Stories & Zaeden',
     [
@@ -251,6 +253,8 @@ export const LIVE_SHOWS_CONCERTS = [
 
   new LiveShowDetails(
     'ls2',
+    'n9u4bngbduddsaaa',
+    'nullified',
     'c3',
     'BDM Night with DJ Chetas & Lijo George',
     [
@@ -283,6 +287,8 @@ export const LIVE_SHOWS_CONCERTS = [
 
   new LiveShowDetails(
     'ls3',
+    'n9u4b8hvbvctrtrdsaaa',
+    'nullified',
     'c5',
     'Comedy Night with Abhishek Upmanyu',
     [
@@ -306,6 +312,8 @@ export const LIVE_SHOWS_CONCERTS = [
 
   new LiveShowDetails(
     'ls4',
+    'n9u4bf9f777hbvgy',
+    'nullified',
     'c5',
     'Comedy Night with Aakash Mehta',
     [

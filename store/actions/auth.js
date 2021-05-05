@@ -1,7 +1,10 @@
 import { AsyncStorage } from 'react-native';
+import AuthUsers from '../../models/AuthUsers';
 
 export const AUTHENTICATE = 'AUTHENTICATE';
+export const SIGNUP = 'SIGNUP';
 export const LOGOUT = 'LOGOUT';
+export const SET_AUTH_USERS = 'SET_AUTH_USERS';
 
 let timer;
 
@@ -12,7 +15,7 @@ export const authenticate = (userId, token, expiryTime) => {
     };
 };
 
-export const signup = (email, password) => {
+export const signup = (email, password, userName, phoneNumber) => {
     return async dispatch => {
         const response = await fetch(
             'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyASa2BP_eyOwBTEKKoF_ZJomyfVm9hrRKk',
@@ -42,8 +45,36 @@ export const signup = (email, password) => {
         }
 
         const resData = await response.json();
+        const userID = resData.localId;
+
+        const responseReg = await fetch(`https://event-management-system-25cfe-default-rtdb.firebaseio.com/authUsers.json`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            userID,
+            userName,
+            phoneNumber,
+            email
+          })
+        });
+
+        const resRegData = await responseReg.json();
+        console.log(resRegData);
+
         console.log(resData);
-        dispatch(authenticate(resData.localId, resData.idToken, parseInt(resData.expiresIn) * 1000));
+        dispatch({
+          type: SIGNUP,
+          userId: resData.localId,
+          token: resData.idToken,
+          authUserData: {
+            userID,
+            userName,
+            phoneNumber,
+            email
+          }
+        });
     };
 };
 
@@ -88,6 +119,26 @@ export const logout = () => {
     clearLogoutTimer();
     AsyncStorage.removeItem('userData');
     return { type: LOGOUT };
+};
+
+export const fetchAuthUsers = () => {
+  return async dispatch => {
+      const response = await fetch('https://event-management-system-25cfe-default-rtdb.firebaseio.com/authUsers.json');
+      const resData = await response.json();
+      const loadedAuthUsers = [];
+
+      for (const key in resData) {
+        loadedAuthUsers.push(
+          new AuthUsers(
+            resData[key].userID,
+            resData[key].userName,
+            resData[key].email,
+            resData[key].phoneNumber
+          )
+        );
+      }
+      dispatch({ type: SET_AUTH_USERS, authUsers: loadedAuthUsers });
+  };
 };
 
 const clearLogoutTimer = () => {

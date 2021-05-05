@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useReducer } from 'react';
 import {
   View,
   ScrollView,
@@ -10,7 +10,8 @@ import {
   Button,
   LogBox,
   ToastAndroid,
-  AlertIOS
+  AlertIOS,
+  Alert
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { HeaderButtons, Item } from 'react-navigation-header-buttons';
@@ -34,12 +35,44 @@ const FilterSwitch = props => {
     );
 };
 
+const REDUCER_UPDATE = 'REDUCER_UPDATE';
+
+const formReducer = (state, action) => {
+  switch (action.type) {
+    case REDUCER_UPDATE:
+      const updatedValues = {
+        ...state.inputValues,
+        [action.input]: action.value
+      };
+      const updatedValidities = {
+        ...state.inputValidities,
+        [action.input]: action.isValid
+      };
+      const updatedTouches = {
+        ...state.inputTouches,
+        [action.input]: true
+      };
+      let updatedFormIsValid = true;
+      for (const key in updatedValidities) {
+          updatedFormIsValid = updatedFormIsValid && updatedValidities[key];
+      }
+      return {
+        inputValues: updatedValues,
+        inputValidities: updatedValidities,
+        inputTouches: updatedTouches,
+        formIsValid: updatedFormIsValid
+      };
+      break;
+    default:
+      return state;
+  }
+};
+
 const EditLiveShowsScreen = props => {
     LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
-    const destinationId = props.navigation.getParam('destinationId');
+    const liveShowId = props.navigation.getParam('liveShowId');
     const allDestLength = useSelector(state => state.destinations.liveShows).length + 1;
-    const allDestinationDetails = useSelector(state => state.destinations.liveShows);
-    const editedDestination = useSelector(state => state.destinations.liveShows.find(dest => dest.id === destinationId));
+    const editedDestination = useSelector(state => state.destinations.liveShows.find(dest => dest.firebaseId === liveShowId));
     const [pricingForEntry, setPricingForEntry] = useState(editedDestination ? editedDestination.pricingForEntry : []);
     var items = [
       {
@@ -52,20 +85,52 @@ const EditLiveShowsScreen = props => {
     ];
     const [selectedCategories, setSelectedCategories] = useState(editedDestination ? editedDestination.categoryIds : []);
 
-    const [eventName, setEventName] = useState(editedDestination ? editedDestination.eventName : '');
-    const [location, setLocation] = useState(editedDestination ? editedDestination.location : '');
+    const [formState, dispatchFormState] = useReducer(formReducer, {
+      inputValues: {
+        eventName: editedDestination ? editedDestination.eventName : '',
+        nameofPerformer: '',
+        genreOfEvent: editedDestination ? editedDestination.genreOfEvent : '',
+        location: editedDestination ? editedDestination.location : '',
+        contactOfManager: editedDestination ? editedDestination.contactOfManager : '',
+        contactOfHost: editedDestination ? editedDestination.contactOfHost : '',
+        description: editedDestination ? editedDestination.description : '',
+        duration: editedDestination ? editedDestination.duration : '',
+        eventForImage: editedDestination ? editedDestination.eventForImage : '',
+        comboName: '',
+        comboPrice: 0
+      },
+      inputValidities: {
+        eventName: editedDestination ? true : false,
+        nameofPerformer: false,
+        genreOfEvent: editedDestination ? true : false,
+        location: editedDestination ? true : false,
+        contactOfManager: editedDestination ? true : false,
+        contactOfHost: editedDestination ? true : false,
+        description: editedDestination ? true : false,
+        duration: editedDestination ? true : false,
+        eventForImage: editedDestination ? true : false,
+        comboName: false,
+        comboPrice: false
+      },
+      inputTouches: {
+        eventName: editedDestination ? true : false,
+        nameofPerformer: false,
+        genreOfEvent: editedDestination ? true : false,
+        location: editedDestination ? true : false,
+        contactOfManager: editedDestination ? true : false,
+        contactOfHost: editedDestination ? true : false,
+        description: editedDestination ? true : false,
+        duration: editedDestination ? true : false,
+        eventForImage: editedDestination ? true : false,
+        comboName: false,
+        comboPrice: false
+      },
+      formIsValid: editedDestination ? true : false
+    });
+
     const [performers, setPeformers] = useState(editedDestination ? editedDestination.performers : []);
-    const [nameofPerformer, setNameofPerformer] = useState('');
-    const [genreOfEvent, setGenreOfEvent] = useState(editedDestination ? editedDestination.genreOfEvent : '');
-    const [contactOfManager, setContactOfManager] = useState(editedDestination ? editedDestination.contactOfManager : '');
-    const [contactOfHost, setContactOfHost] = useState(editedDestination ? editedDestination.contactOfHost : '');
-    const [description, setDescription] = useState(editedDestination ? editedDestination.description : '');
-    const [eventForImage, setEventForImage] = useState(editedDestination ? editedDestination.eventForImage : '');
-    const [duration, setDuration] = useState(editedDestination ? editedDestination.duration : '');
     const [isEighteenPlus, setIsEighteenPlus] = useState(editedDestination ? editedDestination.isEighteenPlus : false);
 
-    const [comboName, setComboName] = useState('');
-    const [comboPrice, setComboPrice] = useState(0);
     const initialRender = useRef(true);
     const dispatch = useDispatch();
 
@@ -85,26 +150,94 @@ const EditLiveShowsScreen = props => {
     }, [pricingForEntry]);
 
     const submitHandler = useCallback(() => {
+      if (!formState.formIsValid) {
+        Alert.alert('Wrong Input!', 'Please Check The Errors in the Form.', [
+          { text: 'Okay!' }
+        ]);
+        return ;
+      }
+      if (selectedCategories.length <= 0) {
+        Alert.alert('Wrong Input!', 'No Categories Are Selected, Make Sure to select one.', [
+          { text: 'Okay!' }
+        ]);
+        return ;
+      }
+      if (pricingForEntry.length <= 0) {
+        Alert.alert('Wrong Input!', 'No Pricing for Entries Are Added, Make Sure to add at least 1.', [
+          { text: 'Okay!' }
+        ]);
+        return ;
+      }
       if (editedDestination) {
-          dispatch(destinationsActions.updateLiveShow(destinationId, selectedCategories[0], eventName, performers, genreOfEvent, location, contactOfManager, contactOfHost, description, duration, eventForImage, pricingForEntry, isEighteenPlus));
+          dispatch(
+            destinationsActions.updateLiveShow(
+              editedDestination.id,
+              liveShowId,
+              selectedCategories[0],
+              formState.inputValues.eventName,
+              performers,
+              formState.inputValues.genreOfEvent,
+              formState.inputValues.location,
+              formState.inputValues.contactOfManager,
+              formState.inputValues.contactOfHost,
+              formState.inputValues.description,
+              formState.inputValues.duration,
+              formState.inputValues.eventForImage,
+              pricingForEntry,
+              isEighteenPlus
+            )
+          );
       } else {
           const dId = 'ls'+allDestLength;
           console.log(dId);
-          dispatch(destinationsActions.addLiveShow(dId, selectedCategories[0], eventName, performers, genreOfEvent, location, contactOfManager, contactOfHost, description, duration, eventForImage, pricingForEntry, isEighteenPlus));
+          dispatch(
+            destinationsActions.addLiveShow(
+              dId,
+              selectedCategories[0],
+              formState.inputValues.eventName,
+              performers,
+              formState.inputValues.genreOfEvent,
+              formState.inputValues.location,
+              formState.inputValues.contactOfManager,
+              formState.inputValues.contactOfHost,
+              formState.inputValues.description,
+              formState.inputValues.duration,
+              formState.inputValues.eventForImage,
+              pricingForEntry,
+              isEighteenPlus
+            )
+          );
       }
       props.navigation.goBack();
-    }, [dispatch, destinationId, selectedCategories, eventName, performers, genreOfEvent, location, contactOfManager, contactOfHost, description, duration, eventForImage, pricingForEntry, isEighteenPlus]);
+    }, [dispatch, liveShowId, selectedCategories, performers, pricingForEntry, isEighteenPlus, formState]);
 
     useEffect(() => {
       props.navigation.setParams({ submit: submitHandler });
     }, [submitHandler]);
 
     const saveComboDetails = () => {
-      setPricingForEntry(pricingForEntry => [...pricingForEntry, {name: comboName, price: comboPrice}]);
+      setPricingForEntry(pricingForEntry => [...pricingForEntry, {name: formState.inputValues.comboName, price: parseFloat(formState.inputValues.comboPrice)}]);
     };
 
     const savePerformers = () => {
-      setPeformers(performers => [...performers, nameofPerformer]);
+      setPeformers(performers => [...performers, formState.inputValues.nameofPerformer]);
+    };
+
+    const inputChangeHandler = (inputIdentifier, text) => {
+      let patternEventName = /^[A-Z][A-Za-z_'/]*([ ][a-zA-Z0-9_'/&]*)*$/;
+      let isValid = true;
+      if (inputIdentifier === "eventName" && !patternEventName.test(text)) {
+        isValid = false;
+      }
+      if (text.trim().length <= 0) {
+        isValid = false;
+      }
+      dispatchFormState({
+        type: REDUCER_UPDATE,
+        value: text,
+        isValid: isValid,
+        input: inputIdentifier
+      });
     };
 
     return (
@@ -137,18 +270,20 @@ const EditLiveShowsScreen = props => {
             <Text style={styles.placeholder}>Event Name:</Text>
             <TextInput
               style={styles.userInput}
-              value={eventName}
-              onChangeText={text => setEventName(text)}
+              value={formState.inputValues.eventName}
+              onChangeText={inputChangeHandler.bind(this, 'eventName')}
             />
+            {!formState.inputValidities.eventName && formState.inputTouches.eventName && <Text style={{color: '#FF0000', fontFamily: 'open-sans'}}>Please Enter A Valid Event Name!</Text>}
           </View>
           <View style={styles.formControl}>
             <Text style={styles.placeholder}>Enter Performer Name:</Text>
             <TextInput
               style={styles.userInput}
               placeholder="Performer Name"
-              value={nameofPerformer}
-              onChangeText={text => setNameofPerformer(text)}
+              value={formState.inputValues.nameofPerformer}
+              onChangeText={inputChangeHandler.bind(this, 'nameofPerformer')}
             />
+            {!formState.inputValidities.nameofPerformer && formState.inputTouches.nameofPerformer && <Text style={{color: '#FF0000', fontFamily: 'open-sans'}}>Please Enter A Valid Performer's Name!</Text>}
             <Button
               onPress={savePerformers}
               title="Save and Add Another"
@@ -159,57 +294,64 @@ const EditLiveShowsScreen = props => {
             <Text style={styles.placeholder}>Location:</Text>
             <TextInput
               style={styles.userInput}
-              value={location}
-              onChangeText={text => setLocation(text)}
+              value={formState.inputValues.location}
+              onChangeText={inputChangeHandler.bind(this, 'location')}
             />
+            {!formState.inputValidities.location && formState.inputTouches.location && <Text style={{color: '#FF0000', fontFamily: 'open-sans'}}>Please Enter A Valid Location!</Text>}
           </View>
           <View style={styles.formControl}>
             <Text style={styles.placeholder}>Genre Of Event:</Text>
             <TextInput
               style={styles.userInput}
-              value={genreOfEvent}
-              onChangeText={text => setGenreOfEvent(text)}
+              value={formState.inputValues.genreOfEvent}
+              onChangeText={inputChangeHandler.bind(this, 'genreOfEvent')}
             />
+            {!formState.inputValidities.genreOfEvent && formState.inputTouches.genreOfEvent && <Text style={{color: '#FF0000', fontFamily: 'open-sans'}}>Please Enter A Valid Genre of Event!</Text>}
           </View>
           <View style={styles.formControl}>
             <Text style={styles.placeholder}>Contact Of Manager:</Text>
             <TextInput
               style={styles.userInput}
-              value={contactOfManager}
-              onChangeText={text => setContactOfManager(text)}
+              value={formState.inputValues.contactOfManager}
+              onChangeText={inputChangeHandler.bind(this, 'contactOfManager')}
             />
+            {!formState.inputValidities.contactOfManager && formState.inputTouches.contactOfManager && <Text style={{color: '#FF0000', fontFamily: 'open-sans'}}>Please Enter A Valid Contact Number!</Text>}
           </View>
           <View style={styles.formControl}>
             <Text style={styles.placeholder}>Contact Of Host:</Text>
             <TextInput
               style={styles.userInput}
-              value={contactOfHost}
-              onChangeText={text => setContactOfHost(text)}
+              value={formState.inputValues.contactOfHost}
+              onChangeText={inputChangeHandler.bind(this, 'contactOfHost')}
             />
+            {!formState.inputValidities.contactOfHost && formState.inputTouches.contactOfHost && <Text style={{color: '#FF0000', fontFamily: 'open-sans'}}>Please Enter A Valid Contact Number!</Text>}
           </View>
           <View style={styles.formControl}>
             <Text style={styles.placeholder}>Description:</Text>
             <TextInput
               style={styles.userInput}
-              value={description}
-              onChangeText={text => setDescription(text)}
+              value={formState.inputValues.description}
+              onChangeText={inputChangeHandler.bind(this, 'description')}
             />
+            {!formState.inputValidities.description && formState.inputTouches.description && <Text style={{color: '#FF0000', fontFamily: 'open-sans'}}>Please Enter A Valid Description!</Text>}
           </View>
           <View style={styles.formControl}>
             <Text style={styles.placeholder}>Event Image URL:</Text>
             <TextInput
               style={styles.userInput}
-              value={eventForImage}
-              onChangeText={text => setEventForImage(text)}
+              value={formState.inputValues.eventForImage}
+              onChangeText={inputChangeHandler.bind(this, 'eventForImage')}
             />
+            {!formState.inputValidities.eventForImage && formState.inputTouches.eventForImage && <Text style={{color: '#FF0000', fontFamily: 'open-sans'}}>Please Enter A Valid Event Image Link!</Text>}
           </View>
           <View style={styles.formControl}>
             <Text style={styles.placeholder}>Duration:</Text>
             <TextInput
               style={styles.userInput}
-              value={duration}
-              onChangeText={text => setDuration(text)}
+              value={formState.inputValues.duration}
+              onChangeText={inputChangeHandler.bind(this, 'duration')}
             />
+            {!formState.inputValidities.duration && formState.inputTouches.duration && <Text style={{color: '#FF0000', fontFamily: 'open-sans'}}>Please Enter A Valid Duration of Event!</Text>}
           </View>
           <View style={styles.formControl}>
             <FilterSwitch label='Eighteen Plus' value={isEighteenPlus} onChange={newValue => setIsEighteenPlus(newValue)} />
@@ -219,16 +361,18 @@ const EditLiveShowsScreen = props => {
             <TextInput
               style={styles.userInput}
               placeholder="Name of Combo"
-              value={comboName}
-              onChangeText={text => setComboName(text)}
+              value={formState.inputValues.comboName}
+              onChangeText={inputChangeHandler.bind(this, 'comboName')}
             />
+            {!formState.inputValidities.comboName && formState.inputTouches.comboName && <Text style={{color: '#FF0000', fontFamily: 'open-sans'}}>Please Enter A Valid Combo Name!</Text>}
             <TextInput
               style={styles.userInput}
               placeholder="Price of Combo"
               keyboardType="numeric"
-              value={comboPrice}
-              onChangeText={text => setComboPrice(parseFloat(text))}
+              value={formState.inputValues.comboPrice}
+              onChangeText={inputChangeHandler.bind(this, 'comboPrice')}
             />
+            {!formState.inputValidities.comboPrice && formState.inputTouches.comboPrice && <Text style={{color: '#FF0000', fontFamily: 'open-sans'}}>Please Enter A Valid Combo Price!</Text>}
             <Button
               onPress={saveComboDetails}
               title="Save and Add Another"
@@ -243,7 +387,7 @@ const EditLiveShowsScreen = props => {
 EditLiveShowsScreen.navigationOptions = navigationData => {
     const submitFn = navigationData.navigation.getParam('submit');
     return {
-        headerTitle: navigationData.navigation.getParam('destinationId') ? 'Edit Live Show Details' : 'Add New Live Show',
+        headerTitle: navigationData.navigation.getParam('liveShowId') ? 'Edit Live Show Details' : 'Add New Live Show',
         headerRight: () => (
           <HeaderButtons HeaderButtonComponent={CustomHeaderButton}>
             <Item

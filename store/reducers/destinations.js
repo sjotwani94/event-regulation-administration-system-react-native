@@ -10,7 +10,8 @@ import {
   UPDATE_DESTINATION,
   ADD_LIVE_SHOW,
   UPDATE_LIVE_SHOW,
-  SET_DESTINATIONS
+  SET_DESTINATIONS,
+  SET_LIVE_SHOWS
 } from '../actions/destinations';
 
 const initialState = {
@@ -28,6 +29,13 @@ const destinationsReducer = (state = initialState, action) => {
           ...state,
           destinations: action.destinations,
           filteredDestinations: action.destinations
+        };
+        break;
+      case SET_LIVE_SHOWS:
+        return {
+          ...state,
+          liveShows: action.liveShows,
+          filteredLiveShows: action.liveShows
         };
         break;
       case TOGGLE_FAVORITE:
@@ -130,13 +138,15 @@ const destinationsReducer = (state = initialState, action) => {
       case DELETE_LIVE_SHOW:
         return {
           ...state,
-          liveShows: state.liveShows.filter(dest => dest.id !== action.lid),
-          filteredLiveShows: state.filteredLiveShows.filter(dest => dest.id !== action.lid)
+          liveShows: state.liveShows.filter(dest => dest.firebaseId !== action.lid),
+          filteredLiveShows: state.filteredLiveShows.filter(dest => dest.firebaseId !== action.lid)
         };
         break;
       case ADD_LIVE_SHOW:
         const newLiveShow = new LiveShowDetails(
           action.liveShowData.liveShowId,
+          action.liveShowData.firebaseId,
+          action.liveShowData.ownerId,
           action.liveShowData.categoryIds,
           action.liveShowData.eventName,
           action.liveShowData.performers,
@@ -156,10 +166,12 @@ const destinationsReducer = (state = initialState, action) => {
           filteredLiveShows: state.filteredLiveShows.concat(newLiveShow)
         };
         break;
-      case UPDATE_DESTINATION:
-        const liveId = state.liveShows.findIndex(dest => dest.id === action.liveId);
+      case UPDATE_LIVE_SHOW:
+        const liveId = state.liveShows.findIndex(dest => dest.firebaseId === action.liveId);
         const updatedLiveShow = new LiveShowDetails(
+          action.liveShowData.liveShowId,
           action.liveId,
+          action.liveShowData.ownerId,
           action.liveShowData.categoryIds,
           action.liveShowData.eventName,
           action.liveShowData.performers,
@@ -175,13 +187,13 @@ const destinationsReducer = (state = initialState, action) => {
         );
         const updatedLiveShows = [...state.liveShows];
         updatedLiveShows[liveId] = updatedLiveShow;
-        const filteredLiveId = state.filteredLiveShows.findIndex(dest => dest.id === action.liveId);
+        const filteredLiveId = state.filteredLiveShows.findIndex(dest => dest.firebaseId === action.liveId);
         const updatedFilteringLiveShows = [...state.filteredLiveShows];
         updatedFilteringLiveShows[filteredLiveId] = updatedLiveShow;
         return {
           ...state,
           liveShows: updatedLiveShows,
-          filteredDestinations: updatedFilteringLiveShows
+          filteredLiveShows: updatedFilteringLiveShows
         };
         break;
       default:
