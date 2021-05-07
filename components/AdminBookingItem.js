@@ -7,6 +7,8 @@ const AdminBookingItem = props => {
     const userId = props.userId;
     const destinationId = props.destId;
     const typeOfEvent = props.typeOfEvent;
+    const customerDetails = useSelector(state => state.auth.authUsersData.find(author => author.userId === userId));
+    const customerName = customerDetails.nameOfUser;
     var selectedDestination;
     if (typeOfEvent === 'Live Concerts' || typeOfEvent === 'Live Shows') {
       selectedDestination = useSelector(state => state.destinations.liveShows.find(destination => destination.id === destinationId));
@@ -64,6 +66,11 @@ const AdminBookingItem = props => {
               <View style={{...styles.bookingRow, ...styles.bookingDetail}}>
                 <Text style={{fontFamily: 'open-sans', fontSize: 18}}>
                   <FontAwesome5 name="money-bill-wave" size={18} color="green" /> Total Bill: ₹{props.totalBill}
+                </Text>
+              </View>
+              <View style={[ {...styles.bookingRow, ...styles.bookingDetail}, { justifyContent: 'center' }]}>
+                <Text style={{fontFamily: 'open-sans', fontSize: 18}}>
+                  Booked By:&nbsp; <Ionicons name="person" size={18} color="cyan" /> {customerName}
                 </Text>
               </View>
               <PaymentReceived />
@@ -129,6 +136,11 @@ const AdminBookingItem = props => {
                   <FontAwesome5 name="money-bill-wave" size={18} color="green" /> Total Bill: ₹{props.totalBill}
                 </Text>
               </View>
+              <View style={[ {...styles.bookingRow, ...styles.bookingDetail}, { justifyContent: 'center' }]}>
+                <Text style={{fontFamily: 'open-sans', fontSize: 18}}>
+                  Booked By:&nbsp; <Ionicons name="person" size={18} color="cyan" /> {customerName}
+                </Text>
+              </View>
               <PaymentReceived />
             </View>
           </TouchableOpacity>
@@ -148,7 +160,7 @@ const styles = StyleSheet.create({
       textAlign: 'center'
     },
     bookingItem: {
-      height: 380,
+      height: 400,
       width: '100%',
       backgroundColor: '#dbdbdb',
       marginBottom: 12,
@@ -162,7 +174,7 @@ const styles = StyleSheet.create({
       flexDirection: 'column'
     },
     bookingHeader: {
-      height: '65%'
+      height: '60%'
     },
     bookingDetail: {
       paddingHorizontal: 10,

@@ -6,13 +6,13 @@ import BookingItem from '../components/BookingItem';
 import { HeaderButtons, Item } from 'react-navigation-header-buttons';
 import CustomHeaderButton from '../components/CustomHeaderButton';
 
-const BookingsOverviewScreen = props => {
+const BookingsPaymentDoneScreen = props => {
     const userId = useSelector(state => state.auth.userId);
-    const bookings = useSelector(state => state.bookings.allBookings.filter(author => author.userId === userId && author.paymentReceived === false));
+    const bookings = useSelector(state => state.bookings.allBookings.filter(author => author.userId === userId && author.paymentReceived === true));
     if (bookings.length === 0) {
       return (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <Text style={{fontFamily: 'open-sans'}}>No Bookings With Pending Payments Found!</Text>
+          <Text style={{fontFamily: 'open-sans'}}>No Bookings With Done Payments Found!</Text>
         </View>
       );
     }
@@ -46,7 +46,7 @@ const BookingsOverviewScreen = props => {
     );
 };
 
-BookingsOverviewScreen.navigationOptions = navigationData => {
+BookingsPaymentDoneScreen.navigationOptions = navigationData => {
     return {
         headerTitle: 'Booking History',
         headerLeft: () => (
@@ -63,4 +63,4 @@ BookingsOverviewScreen.navigationOptions = navigationData => {
     };
 };
 
-export default BookingsOverviewScreen;
+export default BookingsPaymentDoneScreen;

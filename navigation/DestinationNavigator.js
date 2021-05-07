@@ -15,6 +15,7 @@ import DestinationDetailsScreen from '../screens/DestinationDetailsScreen';
 import LiveShowDetailsScreen from '../screens/LiveShowDetailsScreen';
 import InputBookingDetails from '../screens/InputBookingDetails';
 import BookingsOverviewScreen from '../screens/BookingsOverviewScreen';
+import BookingsPaymentDoneScreen from '../screens/BookingsPaymentDoneScreen';
 import BookingDetailsScreen from '../screens/BookingDetailsScreen';
 import FavoritesScreen from '../screens/FavoritesScreen';
 import FiltersScreen from '../screens/FiltersScreen';
@@ -177,6 +178,33 @@ const BookingsNavigator = createStackNavigator(
   }
 );
 
+const BookingsCompleteNavigator = createStackNavigator(
+  {
+    BookingsPaymentDone: {
+      screen: BookingsPaymentDoneScreen
+    },
+    BookingDetails: {
+      screen: BookingDetailsScreen
+    }
+  },
+  {
+    defaultNavigationOptions: {
+      headerTitle: 'Booking History',
+      headerTintColor: Platform.OS === 'android' ? Colors.whiteColor : Colors.accentColor,
+      headerStyle: {
+        backgroundColor: Platform.OS === 'android' ? Colors.accentColor : '',
+      },
+      headerTitleStyle: {
+        fontFamily: 'open-sans'
+      }
+    },
+    navigationOptions: {
+      drawerLabel: 'My Bookings',
+      tabBarLabel: <Text style={{fontFamily: 'open-sans'}}>Payment Done</Text>
+    },
+  }
+);
+
 const BookingsTabScreenConfig = {
   PaymentLeft: {screen: BookingsNavigator, navigationOptions: {
     tabBarIcon: (tabInfo) => {
@@ -184,7 +212,7 @@ const BookingsTabScreenConfig = {
     },
     tabBarColor: Colors.accentColor
   }},
-  PaymentDone: {screen: BookingsNavigator, navigationOptions: {
+  PaymentDone: {screen: BookingsCompleteNavigator, navigationOptions: {
     tabBarIcon: (tabInfo) => {
       return <Ionicons name='checkmark-done-circle-sharp' size={25} color={tabInfo.tintColor} />;
     },

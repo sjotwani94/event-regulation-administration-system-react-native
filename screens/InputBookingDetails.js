@@ -61,6 +61,7 @@ const formReducer = (state, action) => {
 };
 
 const InputBookingDetails = props => {
+    LogBox.ignoreLogs(['Failed prop type']);
     const destinationId = props.navigation.getParam('destId');
     const categoryName = props.navigation.getParam('categoryName');
     const comboPriceDetails = props.navigation.getParam('comboPriceDetails');
@@ -248,17 +249,19 @@ const InputBookingDetails = props => {
         <View style={styles.form}>
           <View style={styles.formControl}>
             <Text style={[ styles.placeholder, { textAlign: 'center', fontSize: 25 }]}>Booking For:</Text>
-            <Text style={styles.placeholder}>Event/Place Name:</Text>
+          </View>
+          <View style={styles.formControlSpecial}>
+            <Text style={styles.placeholderSpecial}>Event/Place Name:</Text>
             <TextInput
-              style={styles.userInput}
+              style={styles.userInputSpecial}
               value={bookingFor}
               editable={false}
             />
           </View>
-          <View style={styles.formControl}>
-            <Text style={styles.placeholder}>Category:</Text>
+          <View style={styles.formControlSpecial}>
+            <Text style={styles.placeholderSpecial}>Category:</Text>
             <TextInput
-              style={styles.userInput}
+              style={styles.userInputSpecial}
               value={categoryName}
               editable={false}
             />
@@ -408,7 +411,7 @@ const styles = StyleSheet.create({
   form: {
     margin: 15,
     padding: 10,
-    backgroundColor: '#dbdbdb',
+    backgroundColor: '#009eb3',
     borderRadius: 10,
     shadowColor: 'black',
     shadowOpacity: 0.26,
@@ -419,7 +422,27 @@ const styles = StyleSheet.create({
   formControl: {
     width: '100%'
   },
+  formControlSpecial: {
+    justifyContent: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    alignItems: 'center',
+    backgroundColor: '#ffffff',
+    marginHorizontal: 10,
+    marginVertical: 3,
+    borderRadius: 5,
+    shadowColor: 'black',
+    shadowOpacity: 0.26,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 10,
+    elevation: 5
+  },
   placeholder: {
+    fontFamily: 'open-sans-bold',
+    marginVertical: 8
+  },
+  placeholderSpecial: {
+    color: '#000d96',
     fontFamily: 'open-sans-bold',
     marginVertical: 8
   },
@@ -428,6 +451,13 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     borderBottomColor: '#ccc',
     borderBottomWidth: 1
+  },
+  userInputSpecial: {
+    paddingHorizontal: 2,
+    paddingVertical: 5,
+    borderBottomColor: '#ccc',
+    borderBottomWidth: 1,
+    color: '#6b77ff'
   },
   filterContainer: {
       flexDirection: 'row',
