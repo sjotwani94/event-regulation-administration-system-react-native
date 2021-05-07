@@ -9,6 +9,8 @@ import CustomHeaderButton from '../components/CustomHeaderButton';
 const FavoritesScreen = props => {
     const favDestinations = useSelector(state => state.destinations.favoriteDestinations);
     const renderDestinationItem = itemData => {
+        const random = Math.floor(Math.random() * (itemData.item.categoryIds.length - 0)) + 0;
+        const catId = itemData.item.categoryIds[random];
         return (
           <DestinationItem
             placeName={itemData.item.placeName}
@@ -21,7 +23,9 @@ const FavoritesScreen = props => {
                 props.navigation.navigate({
                   routeName: 'DestinationDetails',
                   params: {
-                    destinationId: itemData.item.id
+                    destinationId: itemData.item.id,
+                    placeName: itemData.item.placeName,
+                    categoryId: catId
                   }
                 });
             }}

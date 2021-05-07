@@ -58,12 +58,6 @@ const CustomDrawerContentComponent = props => {
             <Text style={styles.bottomText}><SimpleLineIcons name="logout" size={22} color={Colors.primaryColor} />  Logout</Text>
           </View>
         </TouchableNativeFeedback>
-
-        <TouchableNativeFeedback background={ripple}>
-          <View style={styles.containDrawerOption}>
-            <Text style={styles.bottomText}><FontAwesome name="user-secret" size={24} color={Colors.primaryColor} />  Administration</Text>
-          </View>
-        </TouchableNativeFeedback>
       </View>
 
     </View>

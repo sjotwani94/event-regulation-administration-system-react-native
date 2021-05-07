@@ -1,7 +1,7 @@
 import React from 'react';
 import { ScrollView, View, Image, Text, Button, StyleSheet } from 'react-native';
 import { HeaderButtons, Item } from 'react-navigation-header-buttons';
-import { LIVE_SHOWS_CONCERTS } from '../data/dummy-data';
+import { LIVE_SHOWS_CONCERTS, CATEGORIES } from '../data/dummy-data';
 import { useDispatch, useSelector } from 'react-redux';
 import CustomHeaderButton from '../components/CustomHeaderButton';
 import CustomButton from '../components/CustomButton';
@@ -10,6 +10,8 @@ import Colors from '../constants/Colors';
 
 const LiveShowDetailsScreen = props => {
     const liveShowId = props.navigation.getParam('liveShowId');
+    const categoryId = props.navigation.getParam('categoryId');
+    const categoryName = CATEGORIES.find(cat => cat.id === categoryId).title;
     const selectedLiveShow = useSelector(state => state.destinations.liveShows.find(destination => destination.id === liveShowId));
     const renderEighteenPlus = () => {
         if (selectedLiveShow.isEighteenPlus == true)
@@ -107,7 +109,16 @@ const LiveShowDetailsScreen = props => {
             Go To Main Page
           </CustomButton>
           <CustomButton onClick={() => {
-              props.navigation.popToTop();
+              props.navigation.navigate({
+                routeName: 'InputBooking',
+                params: {
+                  destId: selectedLiveShow.id,
+                  categoryName: categoryName,
+                  estateName: selectedLiveShow.eventName,
+                  ownerId: selectedLiveShow.ownerId,
+                  comboPriceDetails: selectedLiveShow.pricingForEntry
+                }
+              });
           }} >
             Book A Ticket
           </CustomButton>

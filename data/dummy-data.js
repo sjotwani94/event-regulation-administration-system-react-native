@@ -340,6 +340,7 @@ export const LIVE_SHOWS_CONCERTS = [
 export const BOOKINGS = [
   new Bookings(
     'b1',
+    'n9u4bf9fnjii2bdb',
     'u1',
     'd1',
     'Birthday',
@@ -358,10 +359,12 @@ export const BOOKINGS = [
         quantity: 15
       }
     ],
-    8220
+    8220,
+    false
   ),
   new Bookings(
     'b2',
+    'n9u4bnjjjjsdohbvgy',
     'u2',
     'd3',
     'Ceremony',
@@ -380,10 +383,12 @@ export const BOOKINGS = [
         quantity: 15
       }
     ],
-    11625
+    11625,
+    false
   ),
   new Bookings(
     'b3',
+    'n9kjii2ow77hbvgy',
     'u1',
     'ls1',
     'Live Concerts',
@@ -397,10 +402,12 @@ export const BOOKINGS = [
         quantity: 1
       }
     ],
-    1500
+    1500,
+    false
   ),
   new Bookings(
     'b4',
+    'n9u49sm2ysctbvgy',
     'u2',
     'ls2',
     'Live Concerts',
@@ -414,10 +421,12 @@ export const BOOKINGS = [
         quantity: 1
       }
     ],
-    3500
+    3500,
+    false
   ),
   new Bookings(
     'b5',
+    'n9umsownuebybd8yvgy',
     'u1',
     'ls3',
     'Live Shows',
@@ -431,10 +440,12 @@ export const BOOKINGS = [
         quantity: 3
       }
     ],
-    2100
+    2100,
+    false
   ),
   new Bookings(
     'b6',
+    'n9sk93du983gdyggwwy',
     'u2',
     'ls4',
     'Live Shows',
@@ -448,6 +459,7 @@ export const BOOKINGS = [
         quantity: 2
       }
     ],
-    900
+    900,
+    false
   )
 ];

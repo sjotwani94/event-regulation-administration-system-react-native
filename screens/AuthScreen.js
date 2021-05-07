@@ -14,6 +14,8 @@ import {
 } from 'react-native';
 import { useDispatch } from 'react-redux';
 import * as authActions from '../store/actions/auth';
+import * as destinationsActions from '../store/actions/destinations';
+import * as bookingsActions from '../store/actions/bookings';
 import Colors from '../constants/Colors';
 
 const AuthScreen = props => {
@@ -43,6 +45,9 @@ const AuthScreen = props => {
       setErrorFound(null);
       try {
         await dispatch(authActions.fetchAuthUsers());
+        await dispatch(destinationsActions.fetchDestinations());
+        await dispatch(destinationsActions.fetchLiveShows());
+        await dispatch(bookingsActions.fetchBookings());
       } catch (e) {
         setErrorFound(e.message);
       }

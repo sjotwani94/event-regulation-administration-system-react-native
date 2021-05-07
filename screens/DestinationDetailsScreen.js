@@ -1,7 +1,7 @@
 import React, { useEffect, useCallback } from 'react';
 import { ScrollView, View, Image, Text, Button, StyleSheet } from 'react-native';
 import { HeaderButtons, Item } from 'react-navigation-header-buttons';
-import { DESTINATIONS } from '../data/dummy-data';
+import { DESTINATIONS, CATEGORIES } from '../data/dummy-data';
 import { useDispatch, useSelector } from 'react-redux';
 import CustomHeaderButton from '../components/CustomHeaderButton';
 import CustomButton from '../components/CustomButton';
@@ -11,6 +11,8 @@ import { toggleFavorite } from '../store/actions/destinations';
 
 const DestinationDetailsScreen = props => {
     const destinationId = props.navigation.getParam('destinationId');
+    const categoryId = props.navigation.getParam('categoryId');
+    const categoryName = CATEGORIES.find(cat => cat.id === categoryId).title;
     const currentDestinationIsFavorite = useSelector(state => state.destinations.favoriteDestinations.some(dest => dest.id === destinationId));
     const selectedDestination = useSelector(state => state.destinations.destinations.find(destination => destination.id === destinationId));
     const dispatch = useDispatch();
@@ -111,7 +113,14 @@ const DestinationDetailsScreen = props => {
           </CustomButton>
           <CustomButton onClick={() => {
               props.navigation.navigate({
-                routeName: 'BookingsOverview'
+                routeName: 'InputBooking',
+                params: {
+                  destId: selectedDestination.id,
+                  categoryName: categoryName,
+                  estateName: selectedDestination.placeName,
+                  ownerId: selectedDestination.ownerId,
+                  comboPriceDetails: selectedDestination.pricingForCombos
+                }
               });
           }} >
             Book Destination

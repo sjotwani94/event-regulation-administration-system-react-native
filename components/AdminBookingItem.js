@@ -3,7 +3,7 @@ import { View, Text, Button, StyleSheet, TouchableOpacity, ImageBackground } fro
 import { useSelector } from 'react-redux';
 import { Ionicons, AntDesign, FontAwesome, FontAwesome5, MaterialIcons } from '@expo/vector-icons';
 
-const BookingItem = props => {
+const AdminBookingItem = props => {
     const userId = props.userId;
     const destinationId = props.destId;
     const typeOfEvent = props.typeOfEvent;
@@ -176,4 +176,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default BookingItem;
+export default AdminBookingItem;

@@ -1,15 +1,18 @@
 import React, { useEffect, useCallback } from 'react';
-import { ScrollView, View, Image, Text, Button, StyleSheet } from 'react-native';
+import { ScrollView, View, Image, Text, Button, StyleSheet, Alert } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import CustomHeaderButton from '../components/CustomHeaderButton';
+import CustomHeaderButton from '../../components/CustomHeaderButton';
 import { HeaderButtons, Item } from 'react-navigation-header-buttons';
-import CustomButton from '../components/CustomButton';
+import CustomButton from '../../components/CustomButton';
 import { Ionicons, Entypo, AntDesign, FontAwesome, FontAwesome5, MaterialIcons, Feather } from '@expo/vector-icons';
-import Colors from '../constants/Colors';
+import Colors from '../../constants/Colors';
+import * as bookingsActions from '../../store/actions/bookings';
 
-const BookingDetailsScreen = props => {
+const CustomerBookingDetails = props => {
     const bookingId = props.navigation.getParam('bookingId');
+    const dispatch = useDispatch();
     const selectedBooking = useSelector(state => state.bookings.allBookings.find(booking => booking.id === bookingId));
+    const firebaseId = selectedBooking.firebaseId;
     const customerId = selectedBooking.userId;
     const customerDetails = useSelector(state => state.auth.authUsersData.find(author => author.userId === customerId));
     const customerName = customerDetails.nameOfUser;
@@ -35,6 +38,21 @@ const BookingDetailsScreen = props => {
         }
         return arrayOfItems;
     }
+    const updateCustomerPaymentStatus = () => {
+      Alert.alert('Confirm Payment Received', 'By Proceeding, You Agree That Payment for this Booking Has Been Done by the Customer. Continue?', [
+        {
+          text: 'Confirm', style: 'default', onPress: () => {
+            dispatch(bookingsActions.updatePaymentStatus(firebaseId, true));
+            props.navigation.goBack();
+          }
+        },
+        {
+          text: 'Nahi!', style: 'destructive', onPress: () => {
+            props.navigation.goBack();
+          }
+        }
+      ]);
+    };
     if (typeOfEvent === 'Live Concerts' || typeOfEvent === 'Live Shows') {
       const selectedLiveShow = useSelector(state => state.destinations.liveShows.find(destination => destination.id === selectedBooking.destId));
       const renderEighteenPlus = () => {
@@ -55,7 +73,45 @@ const BookingDetailsScreen = props => {
               </View>
             );
           return <Text></Text>;
-      }
+      };
+      const PaymentReceived = () => {
+        if (selectedBooking.paymentReceived === false) {
+          return (
+            <View style={styles.destinationColumn}>
+              <View style={[ styles.destinationRow, { justifyContent: 'center' }]}>
+                <Text style={{fontFamily: 'open-sans', fontSize: 18}}>
+                  Payment Status:&nbsp;
+                </Text>
+                <View style={{backgroundColor: 'red', paddingHorizontal: 4, borderRadius: 5}}>
+                  <Text style={{fontFamily: 'open-sans', fontSize: 18}}>
+                    Not Received By Owner
+                  </Text>
+                </View>
+              </View>
+              <Button
+                onPress={updateCustomerPaymentStatus}
+                title="Customer Has Done The Payment"
+                color="#841584"
+              />
+            </View>
+          );
+        } else {
+          return (
+            <View style={styles.destinationColumn}>
+              <View style={[ styles.destinationRow, { justifyContent: 'center' }]}>
+                <Text style={{fontFamily: 'open-sans', fontSize: 18}}>
+                  Payment Status:&nbsp;
+                </Text>
+                <View style={{backgroundColor: 'green', paddingHorizontal: 4, borderRadius: 5}}>
+                  <Text style={{fontFamily: 'open-sans', fontSize: 18}}>
+                    Received By Owner
+                  </Text>
+                </View>
+              </View>
+            </View>
+          );
+        }
+      };
       return (
         <ScrollView>
           <Image source={{uri: selectedLiveShow.eventForImage}} style={styles.imageStyle} />
@@ -146,6 +202,7 @@ const BookingDetailsScreen = props => {
               <Ionicons name="call-sharp" size={18} color="yellow" /> {customerMobile}
             </Text>
           </View>
+          <PaymentReceived />
         </ScrollView>
       );
     } else {
@@ -168,7 +225,45 @@ const BookingDetailsScreen = props => {
               </View>
             );
           return <Text></Text>;
-      }
+      };
+      const PaymentReceived = () => {
+        if (selectedBooking.paymentReceived === false) {
+          return (
+            <View style={styles.destinationColumn}>
+              <View style={[ styles.destinationRow, { justifyContent: 'center' }]}>
+                <Text style={{fontFamily: 'open-sans', fontSize: 18}}>
+                  Payment Status:&nbsp;
+                </Text>
+                <View style={{backgroundColor: 'red', paddingHorizontal: 4, borderRadius: 5}}>
+                  <Text style={{fontFamily: 'open-sans', fontSize: 18}}>
+                    Not Received By Owner
+                  </Text>
+                </View>
+              </View>
+              <Button
+                onPress={updateCustomerPaymentStatus}
+                title="Customer Has Done The Payment"
+                color="#841584"
+              />
+            </View>
+          );
+        } else {
+          return (
+            <View style={styles.destinationColumn}>
+              <View style={[ styles.destinationRow, { justifyContent: 'center' }]}>
+                <Text style={{fontFamily: 'open-sans', fontSize: 18}}>
+                  Payment Status:&nbsp;
+                </Text>
+                <View style={{backgroundColor: 'green', paddingHorizontal: 4, borderRadius: 5}}>
+                  <Text style={{fontFamily: 'open-sans', fontSize: 18}}>
+                    Received By Owner
+                  </Text>
+                </View>
+              </View>
+            </View>
+          );
+        }
+      };
       return (
         <ScrollView>
           <Image source={{uri: selectedDestination.destImage}} style={styles.imageStyle} />
@@ -247,12 +342,13 @@ const BookingDetailsScreen = props => {
               <Ionicons name="call-sharp" size={18} color="yellow" /> {customerMobile}
             </Text>
           </View>
+          <PaymentReceived />
         </ScrollView>
       );
     }
 };
 
-BookingDetailsScreen.navigationOptions = navigationData => {
+CustomerBookingDetails.navigationOptions = navigationData => {
     return {
         headerTitle: 'Overall Booking Details'
     };
@@ -320,4 +416,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default BookingDetailsScreen;
+export default CustomerBookingDetails;

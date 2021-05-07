@@ -8,7 +8,6 @@ import DestinationList from '../components/DestinationList';
 
 const CategoryDestinationsScreen = props => {
     const catId = props.navigation.getParam('categoryId');
-    //const selectedCategory = CATEGORIES.find(cat => cat.id === catId);
     var availableDestinations;
     if (catId === 'c3' || catId === 'c5') {
         availableDestinations = useSelector(state => state.destinations.filteredLiveShows);
@@ -48,7 +47,8 @@ const CategoryDestinationsScreen = props => {
                   routeName: 'LiveShowDetails',
                   params: {
                     liveShowId: itemData.item.id,
-                    eventName: itemData.item.eventName
+                    eventName: itemData.item.eventName,
+                    categoryId: catId
                   }
                 });
             }}
@@ -70,7 +70,8 @@ const CategoryDestinationsScreen = props => {
                   params: {
                     destinationId: itemData.item.id,
                     placeName: itemData.item.placeName,
-                    isFav: isFavorite
+                    isFav: isFavorite,
+                    categoryId: catId
                   }
                 });
             }}

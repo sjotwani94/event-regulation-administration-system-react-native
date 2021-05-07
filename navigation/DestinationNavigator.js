@@ -13,6 +13,7 @@ import CategoriesScreen from '../screens/CategoriesScreen';
 import CategoryDestinationsScreen from '../screens/CategoryDestinationsScreen';
 import DestinationDetailsScreen from '../screens/DestinationDetailsScreen';
 import LiveShowDetailsScreen from '../screens/LiveShowDetailsScreen';
+import InputBookingDetails from '../screens/InputBookingDetails';
 import BookingsOverviewScreen from '../screens/BookingsOverviewScreen';
 import BookingDetailsScreen from '../screens/BookingDetailsScreen';
 import FavoritesScreen from '../screens/FavoritesScreen';
@@ -21,6 +22,8 @@ import AdminDestinationsScreen from '../screens/admin/AdminDestinationsScreen';
 import AdminLiveShowsScreen from '../screens/admin/AdminLiveShowsScreen';
 import EditDestinationsScreen from '../screens/admin/EditDestinationsScreen';
 import EditLiveShowsScreen from '../screens/admin/EditLiveShowsScreen';
+import BookingsAtMyPlaces from '../screens/admin/BookingsAtMyPlaces';
+import CustomerBookingDetails from '../screens/admin/CustomerBookingDetails';
 import Colors from '../constants/Colors';
 import { HeaderButtons, Item } from 'react-navigation-header-buttons';
 import CustomHeaderButton from '../components/CustomHeaderButton';
@@ -43,11 +46,8 @@ const DestinationNavigator = createStackNavigator(
     LiveShowDetails: {
       screen: LiveShowDetailsScreen
     },
-    BookingsOverview: {
-      screen: BookingsOverviewScreen
-    },
-    BookingDetails: {
-      screen: BookingDetailsScreen
+    InputBooking: {
+      screen: InputBookingDetails
     }
   },
   {
@@ -70,7 +70,8 @@ const DestinationNavigator = createStackNavigator(
 const FavoriteNavigator = createStackNavigator(
   {
     Favorites: FavoritesScreen,
-    DestinationDetails: DestinationDetailsScreen
+    DestinationDetails: DestinationDetailsScreen,
+    InputBooking: InputBookingDetails
   },
   {
     defaultNavigationOptions: {
@@ -149,6 +150,72 @@ const FiltersNavigator = createStackNavigator(
   }
 );
 
+const BookingsNavigator = createStackNavigator(
+  {
+    BookingsOverview: {
+      screen: BookingsOverviewScreen
+    },
+    BookingDetails: {
+      screen: BookingDetailsScreen
+    }
+  },
+  {
+    defaultNavigationOptions: {
+      headerTitle: 'Booking History',
+      headerTintColor: Platform.OS === 'android' ? Colors.whiteColor : Colors.accentColor,
+      headerStyle: {
+        backgroundColor: Platform.OS === 'android' ? Colors.accentColor : '',
+      },
+      headerTitleStyle: {
+        fontFamily: 'open-sans'
+      }
+    },
+    navigationOptions: {
+      drawerLabel: 'My Bookings',
+      tabBarLabel: <Text style={{fontFamily: 'open-sans'}}>Payment Left</Text>
+    },
+  }
+);
+
+const BookingsTabScreenConfig = {
+  PaymentLeft: {screen: BookingsNavigator, navigationOptions: {
+    tabBarIcon: (tabInfo) => {
+      return <MaterialIcons name='pending' size={25} color={tabInfo.tintColor} />;
+    },
+    tabBarColor: Colors.accentColor
+  }},
+  PaymentDone: {screen: BookingsNavigator, navigationOptions: {
+    tabBarIcon: (tabInfo) => {
+      return <Ionicons name='checkmark-done-circle-sharp' size={25} color={tabInfo.tintColor} />;
+    },
+    tabBarColor: Colors.accentColor
+  }}
+};
+
+const BookingsTabNavigator =
+Platform.OS === 'android'
+? createMaterialBottomTabNavigator(BookingsTabScreenConfig, {
+  activeColor: Colors.whiteColor,
+  inactiveColor: Colors.accentColor,
+  activeBackgroundColor: Colors.accentColor,
+  inactiveBackgroundColor: Colors.whiteColor,
+  shifting: true
+})
+: createBottomTabNavigator(
+  BookingsTabScreenConfig,
+  {
+    tabBarOptions: {
+      labelStyle: {
+        fontFamily: 'open-sans'
+      },
+      activeTintColor: Colors.whiteColor,
+      inactiveTintColor: Colors.accentColor,
+      activeBackgroundColor: Colors.accentColor,
+      inactiveBackgroundColor: Colors.whiteColor
+    }
+  }
+);
+
 const AdministrateDestinationsNavigator = createStackNavigator(
   {
     AdminDestination: AdminDestinationsScreen,
@@ -193,16 +260,44 @@ const AdministrateLiveShowsNavigator = createStackNavigator(
   }
 );
 
+const AdministrateBookingsAtMyPlaceNavigator = createStackNavigator(
+  {
+    BookingsAtMyPlaces: BookingsAtMyPlaces,
+    CustomerBookingDetails: CustomerBookingDetails
+  },
+  {
+    defaultNavigationOptions: {
+      headerTitle: 'All Bookings',
+      headerTintColor: Platform.OS === 'android' ? Colors.whiteColor : Colors.greener,
+      headerStyle: {
+        backgroundColor: Platform.OS === 'android' ? Colors.greener : '',
+      },
+      headerTitleStyle: {
+        fontFamily: 'open-sans'
+      }
+    },
+    navigationOptions: {
+      tabBarLabel: <Text style={{fontFamily: 'open-sans'}}>Bookings</Text>,
+    },
+  }
+);
+
 const AdminScreenConfig = {
   AdminDestinations: {screen: AdministrateDestinationsNavigator, navigationOptions: {
     tabBarIcon: (tabInfo) => {
-      return <MaterialIcons name='event-available' size={25} color={tabInfo.tintColor} />;
+      return <MaterialIcons name='place' size={25} color={tabInfo.tintColor} />;
     },
     tabBarColor: Colors.greener
   }},
   AdminLiveShows: {screen: AdministrateLiveShowsNavigator, navigationOptions: {
     tabBarIcon: (tabInfo) => {
-      return <Ionicons name='ios-star' size={25} color={tabInfo.tintColor} />;
+      return <MaterialIcons name='event-available' size={25} color={tabInfo.tintColor} />;
+    },
+    tabBarColor: Colors.greener
+  }},
+  AdminBookings: {screen: AdministrateBookingsAtMyPlaceNavigator, navigationOptions: {
+    tabBarIcon: (tabInfo) => {
+      return <FontAwesome name='book' size={25} color={tabInfo.tintColor} />;
     },
     tabBarColor: Colors.greener
   }}
@@ -237,10 +332,40 @@ const MainNavigator = createDrawerNavigator(
     DestinationFavorites: {
       screen: DestinationsFavoriteTabNavigator,
       navigationOptions: {
-        drawerLabel: 'Events & Favorite Destinations',
+        drawerLabel: 'Live Events & Destinations',
+        drawerIcon: drawerConfig => (
+          <MaterialIcons
+            name="event"
+            size={23}
+            color={drawerConfig.tintColor}
+          />
+        )
       },
     },
-    Filters: FiltersNavigator,
+    Filters: {
+      screen: FiltersNavigator,
+      navigationOptions: {
+        drawerIcon: drawerConfig => (
+          <FontAwesome
+            name="filter"
+            size={23}
+            color={drawerConfig.tintColor}
+          />
+        )
+      },
+    },
+    Bookings: {
+      screen: BookingsTabNavigator,
+      navigationOptions: {
+        drawerIcon: drawerConfig => (
+          <FontAwesome
+            name="book"
+            size={23}
+            color={drawerConfig.tintColor}
+          />
+        )
+      },
+    },
     Administration: {
       screen: AdministrationTabNavigator,
       navigationOptions: {

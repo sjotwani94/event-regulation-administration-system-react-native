@@ -1,17 +1,17 @@
 import React from 'react';
 import { FlatList } from 'react-native';
 import { useSelector } from 'react-redux';
-import DestinationList from '../components/DestinationList';
-import BookingItem from '../components/BookingItem';
+import DestinationList from '../../components/DestinationList';
+import AdminBookingItem from '../../components/AdminBookingItem';
 import { HeaderButtons, Item } from 'react-navigation-header-buttons';
-import CustomHeaderButton from '../components/CustomHeaderButton';
+import CustomHeaderButton from '../../components/CustomHeaderButton';
 
-const BookingsOverviewScreen = props => {
+const BookingsAtMyPlaces = props => {
     const userId = useSelector(state => state.auth.userId);
     const bookings = useSelector(state => state.bookings.allBookings.filter(author => author.userId === userId));
     const renderBookingItem = itemData => {
         return (
-          <BookingItem
+          <AdminBookingItem
             userId={itemData.item.userId}
             destId={itemData.item.destId}
             typeOfEvent={itemData.item.typeOfEvent}
@@ -21,7 +21,7 @@ const BookingsOverviewScreen = props => {
             paymentReceived={itemData.item.paymentReceived}
             onSelectBooking={() => {
                 props.navigation.navigate({
-                  routeName: 'BookingDetails',
+                  routeName: 'CustomerBookingDetails',
                   params: {
                     bookingId: itemData.item.id
                   }
@@ -39,9 +39,9 @@ const BookingsOverviewScreen = props => {
     );
 };
 
-BookingsOverviewScreen.navigationOptions = navigationData => {
+BookingsAtMyPlaces.navigationOptions = navigationData => {
     return {
-        headerTitle: 'Booking History',
+        headerTitle: 'Bookings At My Places',
         headerLeft: () => (
           <HeaderButtons HeaderButtonComponent={CustomHeaderButton}>
             <Item
@@ -56,4 +56,4 @@ BookingsOverviewScreen.navigationOptions = navigationData => {
     };
 };
 
-export default BookingsOverviewScreen;
+export default BookingsAtMyPlaces;

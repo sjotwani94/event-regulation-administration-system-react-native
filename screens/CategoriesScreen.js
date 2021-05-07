@@ -18,6 +18,7 @@ import CustomHeaderButton from '../components/CustomHeaderButton';
 
 const CategoriesScreen = props => {
     LogBox.ignoreLogs(['Your project is accessing the following APIs']);
+    LogBox.ignoreLogs(['Setting a timer']);
     let TouchableComponent = TouchableOpacity;
     if (Platform.OS === 'android' && Platform.Version >= 21) {
         TouchableComponent = TouchableHighlight;

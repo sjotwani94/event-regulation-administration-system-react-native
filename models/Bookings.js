@@ -1,6 +1,7 @@
 class Bookings {
   constructor(
     id,
+    firebaseId,
     userId,
     destId,
     typeOfEvent,
@@ -8,9 +9,11 @@ class Bookings {
     startDuration,
     endDuration,
     comboTypePriceQuantity,
-    totalBill
+    totalBill,
+    paymentReceived
   ) {
     this.id = id;
+    this.firebaseId = firebaseId;
     this.userId = userId;
     this.destId = destId;
     this.typeOfEvent = typeOfEvent;
@@ -19,6 +22,7 @@ class Bookings {
     this.endDuration = endDuration;
     this.comboTypePriceQuantity = comboTypePriceQuantity;
     this.totalBill = totalBill;
+    this.paymentReceived = paymentReceived;
   }
 }
 
