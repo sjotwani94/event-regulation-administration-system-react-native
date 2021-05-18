@@ -20,6 +20,7 @@ export const fetchBookings = () => {
             resData[key].bookingId,
             key,
             resData[key].customerId,
+            resData[key].ownerId,
             resData[key].destId,
             resData[key].typeOfEvent,
             resData[key].numberOfMembers,
@@ -38,7 +39,7 @@ export const fetchBookings = () => {
   };
 };
 
-export const addBooking = (bookingId, destId, typeOfEvent, numberOfMembers, startDuration, endDuration, comboTypePriceQuantity, totalBill, paymentReceived) => {
+export const addBooking = (bookingId, ownerId, destId, typeOfEvent, numberOfMembers, startDuration, endDuration, comboTypePriceQuantity, totalBill, paymentReceived) => {
     return async (dispatch, getState) => {
       const token = getState().auth.token;
       const userId = getState().auth.userId;
@@ -50,6 +51,7 @@ export const addBooking = (bookingId, destId, typeOfEvent, numberOfMembers, star
         body: JSON.stringify({
           bookingId,
           customerId: userId,
+          ownerId,
           destId,
           typeOfEvent,
           numberOfMembers,
@@ -69,6 +71,7 @@ export const addBooking = (bookingId, destId, typeOfEvent, numberOfMembers, star
           bookingId,
           firebaseId: resData.name,
           customerId: userId,
+          ownerId,
           destId,
           typeOfEvent,
           numberOfMembers,

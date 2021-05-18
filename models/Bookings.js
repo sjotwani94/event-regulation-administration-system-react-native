@@ -3,6 +3,7 @@ class Bookings {
     id,
     firebaseId,
     userId,
+    ownerId,
     destId,
     typeOfEvent,
     numberOfMembers,
@@ -15,6 +16,7 @@ class Bookings {
     this.id = id;
     this.firebaseId = firebaseId;
     this.userId = userId;
+    this.ownerId = ownerId;
     this.destId = destId;
     this.typeOfEvent = typeOfEvent;
     this.numberOfMembers = numberOfMembers;

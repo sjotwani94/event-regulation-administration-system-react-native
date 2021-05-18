@@ -177,6 +177,7 @@ const InputBookingDetails = props => {
       dispatch(
         bookingsActions.addBooking(
           bId,
+          ownerId,
           destinationId,
           categoryName,
           parseInt(formState.inputValues.numberOfMembers),
@@ -313,7 +314,7 @@ const InputBookingDetails = props => {
             {!formState.inputValidities.endDuration && formState.inputTouches.endDuration && <Text style={{color: '#FF0000', fontFamily: 'open-sans'}}>Please Enter Duration At Least an Hour Later Than Start Duration!</Text>}
           </View>
           <View style={styles.formControl}>
-            <Text style={styles.placeholder}>Enter Entry Tickets Details:</Text>
+            <Text style={styles.placeholder}>Enter Combo Details:</Text>
             <Picker
               style={styles.userInput}
               selectedValue={nameOfCombo}

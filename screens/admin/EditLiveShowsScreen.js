@@ -224,7 +224,7 @@ const EditLiveShowsScreen = props => {
     };
 
     const inputChangeHandler = (inputIdentifier, text) => {
-      let patternEventName = /^[A-Z][A-Za-z_'/]*([ ][a-zA-Z0-9_'/&]*)*$/;
+      let patternEventName = /^[A-Z][A-Za-z_'/:]*([ ][a-zA-Z0-9_'/:&]*)*$/;
       let isValid = true;
       if (inputIdentifier === "eventName" && !patternEventName.test(text)) {
         isValid = false;

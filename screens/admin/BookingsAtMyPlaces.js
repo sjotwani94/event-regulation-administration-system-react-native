@@ -38,7 +38,7 @@ const BookingsAtMyPlaces = props => {
       }
     }, [errorFound]);
     const userId = useSelector(state => state.auth.userId);
-    const bookings = useSelector(state => state.bookings.allBookings.filter(author => author.userId === userId));
+    const bookings = useSelector(state => state.bookings.allBookings.filter(author => author.ownerId === userId));
     const renderBookingItem = itemData => {
         return (
           <AdminBookingItem
